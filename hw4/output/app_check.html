@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campus Customs — App check</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #fbf8f1; color: #0e1b33; line-height: 1.55; }
+    header { background: #00356b; color: #f7f1e3; padding: 32px 24px; }
+    header h1 { margin: 0 0 6px; font-family: Georgia, serif; font-size: 2rem; }
+    header p { margin: 0; color: #c7d4e8; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    section { background: #fff; border-radius: 16px; padding: 24px; margin: 24px 0; box-shadow: 0 8px 24px -10px rgb(14 27 51 / 25%); }
+    h2 { margin: 0 0 4px; font-family: Georgia, serif; color: #00356b; }
+    .tag { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #286dc0; }
+    .proves { font-size: 1.05rem; }
+    .evidence { font-size: 0.9rem; background: #f4f0e7; border-left: 4px solid #f2b33d; padding: 8px 12px; border-radius: 6px; }
+    img { width: 100%; border-radius: 10px; border: 1px solid #e4dccb; margin-top: 12px; }
+    a { color: #286dc0; }
+    code { background: #f4f0e7; padding: 1px 5px; border-radius: 4px; }
+    footer { text-align: center; color: #5d6676; font-size: 0.85rem; padding: 0 0 40px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Campus Customs — App check</h1>
+    <p>Live site (React + Vite on :5173, FastAPI + PydanticAI on :8000) tested on 2026-10-04. Screenshots were taken from the running app.</p>
+  </header>
+  <main>
+    <section id="inventory">
+      <span class="tag">Check 1 · Inventory from the database</span>
+      <h2>Chat checks stock and price for an item</h2>
+      <p class="proves">On the Basic Hoodie Big Yale page the shopper asks “How much is this one, and how many are left in XL?”. Dan answers <b>$68</b> and <b>2 left in XL (low stock)</b>, which matches the page’s own stock line (“Size XL: 2 in stock”). It understood “this one” from the page context and called the <code>check_stock</code> tool instead of guessing.</p>
+      <p class="evidence">Database: <code>catalogue.price = 68.0</code>, <code>inventory(basic-hoodie-big-yale, XL).quantity = 2</code>. Audit trail shows the <code>check_stock</code> call and its result for this run.</p>
+      <img src="app_check_images/inventory.png" alt="Chat answering $68 and 2 left in XL on the Basic Hoodie Big Yale page" />
+    </section>
+
+    <section id="search-cards">
+      <span class="tag">Check 2 · Dynamic search-result cards</span>
+      <h2>Category question puts product cards on the page</h2>
+      <p class="proves">On the Products page the shopper asks “What hoodies do you have?”. The agent calls <code>search_products</code>, reports the honest total (27 hoodies), and returns 8 product ids. The website renders them as product cards in the “Dan’s picks” shelf at the top of the page, with 3 mini cards in the chat. Clicking any of these cards opens the same detail page as the Products grid.</p>
+      <p class="evidence">API contract: agent output <code>show_product_ids</code> → backend re-reads each id from SQLite → <code>ChatResponse.products</code> → React <code>&lt;ProductCard&gt;</code> linking to <code>/products/{id}</code>.</p>
+      <img src="app_check_images/search_cards.png" alt="Dan's picks shelf showing 8 hoodie cards after asking what hoodies do you have" />
+    </section>
+
+    <section id="usability">
+      <span class="tag">Check 3 · Usability improvement</span>
+      <h2>Sold-out size → in-stock alternatives (new agent tool)</h2>
+      <p class="proves">On the Baseball Left Chest Crewneck page the shopper asks “Do you have this in XS?”. Dan says clearly that <b>XS is sold out</b>, lists the sizes that are in stock (S, M, L, XXL), and uses the new <code>find_in_stock_alternatives</code> tool to show three similar crewnecks that <i>are</i> in stock in XS, as cards on the page and in the chat. This is usability improvement #3 in <a href="usability.md">usability.md</a>.</p>
+      <p class="evidence">Database: <code>inventory(baseball-left-chest-crewneck, XS).quantity = 0</code>; the alternatives (Hype And Vice Offside Crewneck, Super Heavyweight Arched Yale Crest, Davenport College Crewneck) all have XS stock &gt; 0.</p>
+      <img src="app_check_images/usability_alternatives.png" alt="Dan saying XS is sold out and showing three in-stock XS crewneck alternatives" />
+    </section>
+  </main>
+  <footer>MGT 409 · Homework 4 · Campus Customs Shop + Chatbot</footer>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Secrets — use .env.example as the template
+.env
+.env.*
+!.env.example
+
+# Local-only data pack: database and product images
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Front end
+node_modules/
+frontend/dist/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
